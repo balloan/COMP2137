@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #Select second interface; static?
 interface=$(ip -4 -o address show scope global | awk ' NR==2 {print $2}')
 

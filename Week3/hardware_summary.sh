@@ -1,4 +1,6 @@
-echo " ------------Hardware Details ------"
+#!/bin/bash
+
+echo " ------------ Hardware Details -----------"
 
 # Processor Info
 sudo inxi | head -1

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #Show LAN interfaces
 echo -e "--------- LAN Interfaces -------------\n"
 ip -4 -o address show scope global |
