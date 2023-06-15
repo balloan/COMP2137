@@ -15,6 +15,7 @@ name_of_host=$(hostname)
 cpu_model=$(sudo lscpu | grep -i 'model name' | cut -d: -f2 | xargs)
 cpu_info=$(sudo lshw -c cpu)
 
+#Quotations to retain line break information from $cpu_info
 current_speed=$(echo "$cpu_info" | grep size | awk -F: 'NR == 1 {print $2}')
 max_speed=$(echo "$cpu_info" | grep capacity | awk -F: 'NR == 1 {print $2}')
 
@@ -27,7 +28,7 @@ disk_model=$(sudo lshw -c disk | grep -A6 '*-disk' | grep product | cut -d: -f2 
 #Gather GPU model and make
 gpu_info=$(sudo lshw -C display)
 
-#Note; " " to prevent echo from placing gpu_info on a single line
+#Note; " " to prevent echo from placing $gpu_info on a single line
 gpu_model=$(echo "$gpu_info" | grep product | cut -d: -f2 | xargs)
 gpu_make=$(echo "$gpu_info" | grep vendor | cut -d: -f2 | xargs)
 
@@ -54,7 +55,7 @@ total_ram=$(free -h | awk 'NR==2 {print $2}')
 used_ram=$(free -h | awk 'NR==2 {print $3}')
 available_ram=$(free -h | awk 'NR==2 {print $4}')
 
-#Gather listening port information
+#Gather listening port information. Format into a comma separated list
 listening_ports=$(ss -tuln -4 | grep LISTEN | cut -d: -f2 | cut -d ' ' -f1 |  tr '\n' ', ')
 
 #Store firewall status information; also shows rules if enabled & configured
