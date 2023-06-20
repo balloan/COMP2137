@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 #Get Date
 current_date=$(date)
 
