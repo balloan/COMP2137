@@ -107,16 +107,16 @@ missing_packages=()
 # Check if packages are installed; add uninstalled ones to an array
 for package in "${packages[@]}"; do
 	dpkg -s "$package" > /dev/null 2>&1
-	if [ $? -ne -0 ]; then
-        missing_packages+=("$package")
-    fi
+	if [ $? -ne 0 ]; then
+        	missing_packages+=("$package")
+    	fi
 done
 
 # Install missing packages
 if [[ ${#missing_packages[@]} -gt 0 ]]; then
 	apt update > /dev/null 2>&1
 	echo "Installing package(s): ${missing_packages[@]}"
-    apt install -y "${missing_packages[@]}" > /dev/null 2>&1 || { echo "Failed to install packages; exiting "; exit 1; }
+    	apt install -y "${missing_packages[@]}" > /dev/null 2>&1 || { echo "Failed to install packages; exiting "; exit 1; }
 fi
 
 echo "Packages successfully installed."
@@ -167,9 +167,9 @@ ports=("22" "80" "443" "3128")
 # Check each port individually in ss; the ports in the array ports should be available and listening
 for port in "${ports[@]}"; do
 	ss -tunlp | cut -d: -f2 | grep $port > /dev/null 2>&1
- 	if [ $? -ne -0 ]; then
-        echo "System not listening on $port. Unexpected; exiting script"; exit 1
-    fi
+ 	if [ $? -ne 0 ]; then
+        	echo "System not listening on $port. Unexpected; exiting script"; exit 1
+    	fi
 done
 
 
@@ -182,7 +182,7 @@ users=("aubrey" "captain" "snibbles" "brownie" "scooter" "sandy" "perrier" "cind
 for user in "${users[@]}"; do
 	#Add User w/ home directory + bash shell
 	useradd -m  -s /bin/bash $user 2>/dev/null
-	if [ $? -ne -0 ]; then
+	if [ $? -ne 0 ]; then
 	        echo "$user already exists; skipping $user configuration"
 	else
 		echo "$user was successfully created!"
