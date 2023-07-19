@@ -152,17 +152,9 @@ test_command "Configuring Squid"
 
 echo "Configuring firewall settings."
 
-# Enable firewall, allow specified services through
-ufw enable > /dev/null 2>&1 || { echo "Failed to enable firewall; exiting "; exit 1; }
-ufw allow 22,80,443,3128/tcp  > /dev/null 2>&1 || { echo "Failed to edit firewall settings; exiting "; exit 1; }
-
-echo "Firewall settings successfully modified."
-
-### VERIFY LISTENING PORTS ###
-
 ports=("22" "80" "443" "3128")
 
-# Check each port individually in ss; the ports in the array ports should be available and listening
+# Allow ports through & verify they are listening
 for port in "${ports[@]}"; do
 	ufw allow $port/tcp
  	exit_on_failure "Allowing $port through UFW"
