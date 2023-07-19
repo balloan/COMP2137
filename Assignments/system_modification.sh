@@ -202,7 +202,7 @@ for user in "${users[@]}"; do
 
  	# Check if user already has a key file
 	if [[ -f /home/$user/.ssh/id_rsa ]]; then
-		echo "RSA key already exists for user"
+		echo "RSA key already exists for $user"
 	else
 		# Create key pair for the user and add it to the authorized_keys file
 		sudo -u $user ssh-keygen -q -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
@@ -211,7 +211,7 @@ for user in "${users[@]}"; do
     	fi
 
 	if [[ -f /home/$user/.ssh/id_ed25519 ]]; then
-		echo "ed25519 key already exists for user"
+		echo "ed25519 key already exists for $user"
 	else
 	 	# Create key pair for the user and add it to the authorized_keys file
   		sudo -u $user ssh-keygen -t ed25519 -f /home/$user/.ssh/id_ed25519 -N "" > /dev/null
@@ -223,7 +223,7 @@ for user in "${users[@]}"; do
 done
 
 # Check if dennis belongs to sudo; if not, add to sudo group.
-id dennis | grep sudo > /dev/null 2>&1 || usermod -aG sudo dennis > /dev/null 2>&1 && echo "dennis was added to sudo group"
+id dennis | grep sudo > /dev/null 2>&1 || ( usermod -aG sudo dennis > /dev/null 2>&1 && echo "dennis was added to sudo group" )
 exit_on_failure "Adding dennis to sudo group"
 
 # Add key to authorized_users for dennis
