@@ -219,17 +219,20 @@ for user in "${users[@]}"; do
 		cat /home/$user/.ssh/id_ed25519.pub >> /home/$user/.ssh/authorized_keys
 	fi
 	
-	echo "$user has been successfully configured with SSH keys."
+	echo "$user SSH key configuration successful."
 done
 
 # Check if dennis belongs to sudo; if not, add to sudo group.
-id dennis | grep sudo > /dev/null 2>&1 || usermod -aG sudo dennis > /dev/null 2>&1
+id dennis | grep sudo > /dev/null 2>&1 || usermod -aG sudo dennis > /dev/null 2>&1 && echo "dennis was added to sudo group"
 exit_on_failure "Adding dennis to sudo group"
-echo "Added dennis to sudo group"
 
 # Add key to authorized_users for dennis
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG4rT3vTt99Ox5kndS4HmgTrKBT8SKzhK4rhGkEVGlCI" >> /home/dennis/.ssh/authorized_keys
-exit_on_failure "Adding additional private key for user dennis"
-echo "Added additional key to authorized_keys for dennis"
+
+grep "AAAAC3NzaC1lZDI1NTE5AAAAIG4rT3vTt99Ox5kndS4HmgTrKBT8SKzhK4rhGkEVGlCI" /home/dennis/.ssh/authorized_keys > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+	echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG4rT3vTt99Ox5kndS4HmgTrKBT8SKzhK4rhGkEVGlCI" >> /home/dennis/.ssh/authorized_keys
+	exit_on_failure "Adding additional private key for user dennis"
+ 	echo "Added additional key to authorized_keys for dennis"
+fi
 
 echo -e "\nConfiguration complete!"
