@@ -107,10 +107,11 @@ echo -e "\n###SOFTWARE CONFIGURATION ### \n"
 apt update > /dev/null 2>&1
 packages=("openssh-server" "apache2" "squid" "ufw")
 
-# Check if packages are installed; add uninstalled ones to an array
+# Check if packages are installed
 for package in "${packages[@]}"; do
 	dpkg -s "$package" > /dev/null 2>&1
 	if [ $? -ne 0 ]; then
+ 		# If package is not installed, install it
 		echo "Installing package $package"
   		apt install -y $package > /dev/null 2>&1 && echo "$package installed successfully"
     		exit_on_failure "Installing $package"
@@ -121,44 +122,55 @@ echo "Packages successfully installed."
 
 ### SSH CONFIG ### 
 
-# Disable Password Authentication, enable pubkey authentication -i allows it to write to file
-sed -i 's/^#*\s*PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config || { echo "Disabling password auth failed"; exit 1; }
-sed -i 's/^#*\s*PubkeyAuthentication .*/PubkeyAuthentication yes/' /etc/ssh/sshd_config || { echo "Enabling pub key auth failed"; exit 1; }
-sed -i 's/^#AuthorizedKeysFile/AuthorizedKeysFile/' /etc/ssh/sshd_config || { echo "Setting Authorized Keys file failed"; exit 1; }
+# Disable Password Authentication
+sed -i 's/^#*\s*PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
+exit_on_failure "Modifying sshd_config"
+
+# Enable Public Key Authentication
+sed -i 's/^#*\s*PubkeyAuthentication .*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+exit_on_failure "Modifying sshd_config"
+
+# Uncomment the Authorized Keys file
+sed -i 's/^#AuthorizedKeysFile/AuthorizedKeysFile/' /etc/ssh/sshd_config
+exit_on_failure "Modifying sshd_config"
 
 # Restart SSH Server to apply changes
-systemctl restart sshd
-
-# Confirm service restarted; provide output to user
-test_command "Configuring SSH"
+systemctl restart sshd && echo "Configuring SSH complete."
+exit_on_failure "Restarting SSH service"
 
 ### APACHE CONFIG ###
 
 a2enmod ssl  > /dev/null 2>&1
-test_command "Enabling SSL for Apache"
-systemctl restart apache2  > /dev/null 2>&1
-test_command "Configuring Apache"
+exit_on_failure "Enabling SSL for Apache"
+
+systemctl restart apache2  > /dev/null 2>&1 && echo "Apache successfully configured"
+exit_on_failure "Restarting Apache service"
 
 ### SQUID CONFIG ###
 
-# It listens to 3128 by default; if it's commented out for some reason this will uncoment it
-sudo sed -i 's/#http_port 3128/http_port 3128/' /etc/squid/squid.conf || { echo "Changing Squid listening port failed"; exit 1; }
+# Uncomment default port for Squid
+sudo sed -i 's/#http_port 3128/http_port 3128/' /etc/squid/squid.conf
+exit_on_failure "Editing Squid configuration"
 
-systemctl restart squid  > /dev/null 2>&1
-test_command "Configuring Squid"
+systemctl restart squid  > /dev/null 2>&1 && echo "Squid successfully configured."
+exit_on_failure "Restarting Squid service"
 
 
 ### FIREWALL CONFIG ### 
 
 echo "Configuring firewall settings."
 
+# SSH, HTTP, HTTPS, Squid
 ports=("22" "80" "443" "3128")
 
-# Allow ports through & verify they are listening
 for port in "${ports[@]}"; do
+	# Add port to UFW rules
 	ufw allow $port/tcp
  	exit_on_failure "Allowing $port through UFW"
+
+   	# Confirm that system is listening on the specified port
 	ss -tunlp | cut -d: -f2 | grep $port > /dev/null 2>&1
+ 
  	if [ $? -ne 0 ]; then
         	echo "System not listening on $port. Unexpected; exiting script"; exit 1
     	fi
@@ -174,19 +186,23 @@ echo -e "\n### USER ACCOUNT CONFIGURATION ### \n"
 users=("aubrey" "captain" "snibbles" "brownie" "scooter" "sandy" "perrier" "cindy" "tiger" "yoda" "dennis")
 
 for user in "${users[@]}"; do
-	getent passwd aubrey > /dev/null 2>&1 
-	#Add User w/ home directory + bash shell
+	# Check if user exists
+	getent passwd $user > /dev/null 2>&1 
+
+ 	# Skip adding user if they already exist
 	if [ $? -eq 0 ]; then
 	        echo "$user already exists; skipping $user creation"
 	else
+ 	#Add User w/ home directory and bash shell
  		useradd -m  -s /bin/bash $user 2>/dev/null
 		echo "$user was successfully created!"
 	fi
 
+ 	# Check if user already has a key file
 	if [[ -f /home/$user/.ssh/id_rsa ]]; then
 		echo "SSH key already exists for user"
 	else
-	 	# Run keygen as the user, output to the user home directory. -N for no password on the key
+		# Create key pair for the user and add it to the authorized_keys file
 		sudo -u $user ssh-keygen -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
 		exit_on_faiulure "Generating RSA key"
 		cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys
@@ -195,7 +211,7 @@ for user in "${users[@]}"; do
 	if [[ -f /home/$user/.ssh/id_25519 ]]; then
 		echo "SSH key already exists for user"
 	else
-	 	# Run keygen as the user, output to the user home directory. -N for no password on the key
+	 	# Create key pair for the user and add it to the authorized_keys file
   		sudo -u $user ssh-keygen -t ed25519 -f /home/$user/.ssh/id_ed25519 -N "" > /dev/null
 		exit_on_faiulure "Generating ed25519 key"
 		cat /home/$user/.ssh/id_ed25519.pub >> /home/$user/.ssh/authorized_keys
@@ -205,13 +221,12 @@ for user in "${users[@]}"; do
 	echo "$user has been successfully configured with SSH keys."
 done
 
-# Add dennis to sudo group
+# Check if dennis belongs to sudo; if not, add to sudo group.
 id dennis | grep sudo > /dev/null 2>&1 || usermod -aG sudo dennis > /dev/null 2>&1
-test_command "Adding dennis to sudo group"
+exit_on_failure "Adding dennis to sudo group"
 
-# Add key to authorized for dennis
+# Add key to authorized_users for dennis
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG4rT3vTt99Ox5kndS4HmgTrKBT8SKzhK4rhGkEVGlCI" >> /home/dennis/.ssh/authorized_keys
-
-test_command "Adding additional private key for user dennis"
+exit_on_failure "Adding additional private key for user dennis"
 
 echo -e "\nConfiguration complete!"
