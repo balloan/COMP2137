@@ -183,16 +183,25 @@ for user in "${users[@]}"; do
 		echo "$user was successfully created!"
 	fi
 
+	if [[ -f /home/$user/.ssh/id_rsa ]]; then
+		echo "SSH key already exists for user"
+	else
+	 	# Run keygen as the user, output to the user home directory. -N for no password on the key
+		sudo -u $user ssh-keygen -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
+		exit_on_faiulure "Generating RSA key"
+		cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys
+  		echo "RSA key added"
 
- 	# Run keygen as the user, output to the user home directory. -N for no password on the key
-	sudo -u $user ssh-keygen -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
-	test_command "Generating RSA key"
-	sudo -u $user ssh-keygen -t ed25519 -f /home/$user/.ssh/id_ed25519 -N "" > /dev/null
-	test_command "Generating ed25519 key"
-
-	# Add key to user's public key file
-	cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys
-	cat /home/$user/.ssh/id_ed25519.pub >> /home/$user/.ssh/authorized_keys
+	if [[ -f /home/$user/.ssh/id_25519 ]]; then
+		echo "SSH key already exists for user"
+	else
+	 	# Run keygen as the user, output to the user home directory. -N for no password on the key
+  		sudo -u $user ssh-keygen -t ed25519 -f /home/$user/.ssh/id_ed25519 -N "" > /dev/null
+		exit_on_faiulure "Generating ed25519 key"
+		cat /home/$user/.ssh/id_ed25519.pub >> /home/$user/.ssh/authorized_keys
+  		echo "Ed25519 key added"
+	fi
+	
 	echo "$user has been successfully configured with SSH keys."
 done
 
