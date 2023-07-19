@@ -76,9 +76,10 @@ network:
         addresses: [$dns_ip]
         search: [home.arpa, localdomain]
 EOF
+echo "Modified netplan file for $interface_name"
 fi
 
-echo "Modified netplan file for $interface_name"
+
 netplan apply > /dev/null 2>&1 && echo "Netplan changes successfully applied"
 exit_on_failure "Netplan apply"
 
@@ -204,7 +205,7 @@ for user in "${users[@]}"; do
 	else
 		# Create key pair for the user and add it to the authorized_keys file
 		sudo -u $user ssh-keygen -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
-		exit_on_faiulure "Generating RSA key"
+		exit_on_failure "Generating RSA key"
 		cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys
   		echo "RSA key added"
     	fi
@@ -214,7 +215,7 @@ for user in "${users[@]}"; do
 	else
 	 	# Create key pair for the user and add it to the authorized_keys file
   		sudo -u $user ssh-keygen -t ed25519 -f /home/$user/.ssh/id_ed25519 -N "" > /dev/null
-		exit_on_faiulure "Generating ed25519 key"
+		exit_on_failure "Generating ed25519 key"
 		cat /home/$user/.ssh/id_ed25519.pub >> /home/$user/.ssh/authorized_keys
   		echo "Ed25519 key added"
 	fi
