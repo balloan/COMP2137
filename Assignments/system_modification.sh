@@ -196,7 +196,7 @@ for user in "${users[@]}"; do
 	else
  	#Add User w/ home directory and bash shell
  		useradd -m  -s /bin/bash $user 2>/dev/null
-		echo "$user was successfully created!"
+		echo "User $user was successfully created!"
 	fi
 
  	# Check if user already has a key file
@@ -204,10 +204,9 @@ for user in "${users[@]}"; do
 		echo "SSH key already exists for user"
 	else
 		# Create key pair for the user and add it to the authorized_keys file
-		sudo -u $user ssh-keygen -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
+		sudo -u $user ssh-keygen -q -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
 		exit_on_failure "Generating RSA key"
 		cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys
-  		echo "RSA key added"
     	fi
 
 	if [[ -f /home/$user/.ssh/id_25519 ]]; then
@@ -217,7 +216,6 @@ for user in "${users[@]}"; do
   		sudo -u $user ssh-keygen -t ed25519 -f /home/$user/.ssh/id_ed25519 -N "" > /dev/null
 		exit_on_failure "Generating ed25519 key"
 		cat /home/$user/.ssh/id_ed25519.pub >> /home/$user/.ssh/authorized_keys
-  		echo "Ed25519 key added"
 	fi
 	
 	echo "$user has been successfully configured with SSH keys."
@@ -226,9 +224,11 @@ done
 # Check if dennis belongs to sudo; if not, add to sudo group.
 id dennis | grep sudo > /dev/null 2>&1 || usermod -aG sudo dennis > /dev/null 2>&1
 exit_on_failure "Adding dennis to sudo group"
+echo "Added dennis to sudo group"
 
 # Add key to authorized_users for dennis
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG4rT3vTt99Ox5kndS4HmgTrKBT8SKzhK4rhGkEVGlCI" >> /home/dennis/.ssh/authorized_keys
 exit_on_failure "Adding additional private key for user dennis"
+echo "Added additional key to authorized_keys for dennis"
 
 echo -e "\nConfiguration complete!"
