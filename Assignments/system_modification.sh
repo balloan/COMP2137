@@ -135,7 +135,7 @@ sed -i 's/^#AuthorizedKeysFile/AuthorizedKeysFile/' /etc/ssh/sshd_config
 exit_on_failure "Modifying sshd_config"
 
 # Restart SSH Server to apply changes
-systemctl restart sshd && echo "Configuring SSH complete."
+systemctl restart sshd && echo "SSH successfully configured."
 exit_on_failure "Restarting SSH service"
 
 ### APACHE CONFIG ###
@@ -165,7 +165,7 @@ ports=("22" "80" "443" "3128")
 
 for port in "${ports[@]}"; do
 	# Add port to UFW rules
-	ufw allow $port/tcp
+	ufw allow $port/tcp > /dev/null 2>&1
  	exit_on_failure "Allowing $port through UFW"
 
    	# Confirm that system is listening on the specified port
@@ -207,6 +207,7 @@ for user in "${users[@]}"; do
 		exit_on_faiulure "Generating RSA key"
 		cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys
   		echo "RSA key added"
+    	fi
 
 	if [[ -f /home/$user/.ssh/id_25519 ]]; then
 		echo "SSH key already exists for user"
