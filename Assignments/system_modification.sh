@@ -103,7 +103,7 @@ fi
 
 ### SOFTWARE CONFIGURATION ### 
 
-echo -e "\n###SOFTWARE CONFIGURATION ### \n"
+echo -e "\n### SOFTWARE CONFIGURATION ### \n"
 
 apt update > /dev/null 2>&1
 packages=("openssh-server" "apache2" "squid" "ufw")
