@@ -119,7 +119,7 @@ for package in "${packages[@]}"; do
     	fi
 done
 
-echo "Packages successfully installed."
+echo "All required packages are installed."
 
 ### SSH CONFIG ### 
 
