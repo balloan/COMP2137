@@ -201,7 +201,7 @@ for user in "${users[@]}"; do
 
  	# Check if user already has a key file
 	if [[ -f /home/$user/.ssh/id_rsa ]]; then
-		echo "SSH key already exists for user"
+		echo "RSA key already exists for user"
 	else
 		# Create key pair for the user and add it to the authorized_keys file
 		sudo -u $user ssh-keygen -q -t rsa -f /home/$user/.ssh/id_rsa -N "" > /dev/null
@@ -210,7 +210,7 @@ for user in "${users[@]}"; do
     	fi
 
 	if [[ -f /home/$user/.ssh/id_25519 ]]; then
-		echo "SSH key already exists for user"
+		echo "ed25519 key already exists for user"
 	else
 	 	# Create key pair for the user and add it to the authorized_keys file
   		sudo -u $user ssh-keygen -t ed25519 -f /home/$user/.ssh/id_ed25519 -N "" > /dev/null
