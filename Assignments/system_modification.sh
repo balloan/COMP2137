@@ -196,6 +196,7 @@ for user in "${users[@]}"; do
 	else
  	#Add User w/ home directory and bash shell
  		useradd -m  -s /bin/bash $user 2>/dev/null
+   		exit_on_failure "Adding user $user"
 		echo "User $user was successfully created!"
 	fi
 
@@ -209,7 +210,7 @@ for user in "${users[@]}"; do
 		cat /home/$user/.ssh/id_rsa.pub >> /home/$user/.ssh/authorized_keys
     	fi
 
-	if [[ -f /home/$user/.ssh/id_25519 ]]; then
+	if [[ -f /home/$user/.ssh/id_ed25519 ]]; then
 		echo "ed25519 key already exists for user"
 	else
 	 	# Create key pair for the user and add it to the authorized_keys file
