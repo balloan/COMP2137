@@ -124,5 +124,6 @@ ssh remoteadmin@target2-mgmt "ufw allow 80/tcp > /dev/null 2>&1 || echo 'Failed 
 ssh remoteadmin@target2-mgmt "apt-get install apache2 -y > /dev/null 2>&1 || echo 'Failed to install Apache; exiting' ; exit 1"
 
 # Configure rsyslog on webhost to send logs to loghost
-ssh remoteadmin@target2-mgmt 'echo "*.* @loghost" >> /etc/rsyslog.conf || echo 'Failed to edit syslog conf; exiting' ; exit 1'
+ssh remoteadmin@target2-mgmt 'echo "*.* @loghost" >> /etc/rsyslog.conf || echo "Failed to edit syslog conf; exiting" ; exit 1'
+
 
