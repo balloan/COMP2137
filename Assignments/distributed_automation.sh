@@ -137,5 +137,22 @@ ssh remoteadmin@target2-mgmt  'systemctl restart rsyslog'
 sed -i 's/192\.168\.16\.10 target1/192.168.16.3 loghost/' /etc/hosts
 sed -i 's/192\.168\.16\.11 target2/192.168.16.4 webhost/' /etc/hosts
 
-echo "System configuration successful!"
+# Search for the default Apache page; verify that site is up
+wget -qO- http://webhost | grep "It works" > /dev/null
+
+if [ "$?" -ne "0" ]; then
+    echo "Unable to load the webpage from webhost; exiting"
+    exit 1
+fi
+
+# Check to see how many lines containing webhost are in loghost's syslog
+lines=$(ssh remoteadmin@loghost grep webhost /var/log/syslog | wc -l)
+
+if [ "$lines" -eq "0" ]; then
+	echo "Unable to retrieve webhost logfiles; exiting"
+	exit 1
+fi
+
+echo "Configuration update succeeded!"
+
 
