@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Ensure script has appropriate permissions
+if [ "$UID" -ne "0" ]; then
+        echo "Please re-run script with sudo or root - exiting"
+        exit 1
+fi
+
 ### MACHINE ONE CONFIG ###
 
 # Check hostname
@@ -126,4 +132,9 @@ ssh remoteadmin@target2-mgmt "apt-get install apache2 -y > /dev/null 2>&1 || ech
 # Configure rsyslog on webhost to send logs to loghost
 ssh remoteadmin@target2-mgmt 'echo "*.* @loghost" >> /etc/rsyslog.conf || echo "Failed to edit syslog conf; exiting" ; exit 1'
 
+# Edit host machine /etc/hosts file
+sed -i 's/192\.168\.16\.10 target1/192.168.16.3 loghost/' /etc/hosts
+sed -i 's/192\.168\.16\.11 target2/192.168.16.4 webhost/' /etc/hosts
+
+echo "System configuration successful!"
 
