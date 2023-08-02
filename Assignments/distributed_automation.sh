@@ -131,6 +131,7 @@ ssh remoteadmin@target2-mgmt "apt-get install apache2 -y > /dev/null 2>&1 || ech
 
 # Configure rsyslog on webhost to send logs to loghost
 ssh remoteadmin@target2-mgmt 'echo "*.* @loghost" >> /etc/rsyslog.conf || echo "Failed to edit syslog conf; exiting" ; exit 1'
+ssh remoteadmin@target2-mgmt  'systemctl restart rsyslog'
 
 # Edit host machine /etc/hosts file
 sed -i 's/192\.168\.16\.10 target1/192.168.16.3 loghost/' /etc/hosts
