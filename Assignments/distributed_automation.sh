@@ -43,7 +43,9 @@ network:
 EOF"
 
 # Apply netplan changes
-ssh remoteadmin@target1-mgmt "netplan apply > /dev/null 2>&1 || { echo 'Netplan failed to apply; exiting'; exit 1 }"
+ssh remoteadmin@target1-mgmt "netplan apply > /dev/null 2>&1 || { echo 'Netplan failed to apply; exiting'; exit 1; }"
+
+
 
 #  Add a machine named webhost to the /etc/hosts file with host 4 on the lan
 ssh remoteadmin@target1-mgmt "echo '192.168.16.4 webhost' >> /etc/hosts"
@@ -51,8 +53,8 @@ ssh remoteadmin@target1-mgmt "echo '192.168.16.4 webhost' >> /etc/hosts"
 
 # UFW Settings
 
-ssh remoteadmin@target1-mgmt "apt-get install ufw -y > /dev/null 2>&1 || { echo 'Failed to install UFW; exiting' ; exit 1 }"
-ssh remoteadmin@target1-mgmt  "ufw allow from 172.16.1.0/24 to any port 514 proto udp > /dev/null 2>&1 || { echo 'Failed to edit UFW; exiting' ; exit 1 } "
+ssh remoteadmin@target1-mgmt "apt-get install ufw -y > /dev/null 2>&1 || { echo 'Failed to install UFW; exiting' ; exit 1; }"
+ssh remoteadmin@target1-mgmt  "ufw allow from 172.16.1.0/24 to any port 514 proto udp > /dev/null 2>&1 || { echo 'Failed to edit UFW; exiting' ; exit 1; } "
 
 # Config Syslog
 
@@ -109,20 +111,20 @@ network:
 EOF"
 
 # Apply netplan changes
-ssh remoteadmin@target2-mgmt "netplan apply > /dev/null 2>&1 || { echo 'Netplan failed to apply; exiting'; exit 1 }"
+ssh remoteadmin@target2-mgmt "netplan apply > /dev/null 2>&1 || { echo 'Netplan failed to apply; exiting'; exit 1; }"
 
 # Add loghost to /etc/hosts
 ssh remoteadmin@target2-mgmt 'echo "192.168.16.3 loghost" >> /etc/hosts'
 
 # UFW Settings
-ssh remoteadmin@target2-mgmt "apt-get install ufw -y > /dev/null 2>&1 || { echo 'Failed to install UFW; exiting' ; exit 1 }"
-ssh remoteadmin@target2-mgmt "ufw allow 80/tcp > /dev/null 2>&1 || { echo 'Failed to edit UFW; exiting' ; exit 1 }"
+ssh remoteadmin@target2-mgmt "apt-get install ufw -y > /dev/null 2>&1 || { echo 'Failed to install UFW; exiting' ; exit 1; }"
+ssh remoteadmin@target2-mgmt "ufw allow 80/tcp > /dev/null 2>&1 || { echo 'Failed to edit UFW; exiting' ; exit 1; }"
 
 # Apache Install
-ssh remoteadmin@target2-mgmt "apt-get install apache2 -y > /dev/null 2>&1 || { echo 'Failed to install Apache; exiting' ; exit 1 }"
+ssh remoteadmin@target2-mgmt "apt-get install apache2 -y > /dev/null 2>&1 || { echo 'Failed to install Apache; exiting' ; exit 1; }"
 
 # Configure rsyslog on webhost to send logs to loghost
-ssh remoteadmin@target2-mgmt 'echo "*.* @loghost" >> /etc/rsyslog.conf || { echo "Failed to edit syslog conf; exiting" ; exit 1 }'
+ssh remoteadmin@target2-mgmt 'echo "*.* @loghost" >> /etc/rsyslog.conf || { echo "Failed to edit syslog conf; exiting" ; exit 1; }'
 ssh remoteadmin@target2-mgmt  'systemctl restart rsyslog'
 
 # Edit host machine /etc/hosts file
