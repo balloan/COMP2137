@@ -161,7 +161,7 @@ wget -qO- http://webhost | grep "It works" > /dev/null
 exit_on_failure "Loading page from webhost"
 
 # Check to see how many lines containing webhost are in loghost's syslog
-lines=$(ssh remoteadmin@loghost "grep webhost /var/log/syslog | wc -l")
+lines=$(ssh -o StrictHostKeyChecking=no remoteadmin@loghost "grep webhost /var/log/syslog | wc -l")
 
 if [ "$lines" -eq "0" ]; then
 	echo "Unable to retrieve webhost logfiles; exiting"
