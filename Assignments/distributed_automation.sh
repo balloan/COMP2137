@@ -79,6 +79,8 @@ exit_on_failure "Modifying /etc/rsyslog.conf on target1"
 ssh remoteadmin@target1-mgmt systemctl restart rsyslog
 exit_on_failure "Restarting rsyslog service on target1"
 
+echo "Successfully modified Target1's configuration"
+
 ### MACHINE TWO CONFIG ###
 
 # Check hostname
@@ -147,6 +149,8 @@ exit_on_failure "Modifying /etc/rsyslog.conf on target2"
 ssh remoteadmin@target2-mgmt  'systemctl restart rsyslog'
 exit_on_failure "Restarting rsyslog on target2"
 
+echo "Successfully modified Target1's configuration"
+
 # Edit host machine /etc/hosts file
 sudo sed -i 's/192\.168\.16\.10 target1/192.168.16.3 loghost/' /etc/hosts
 exit_on_failure "Modifying /etc/hosts on local machine"
@@ -157,7 +161,7 @@ wget -qO- http://webhost | grep "It works" > /dev/null
 exit_on_failure "Loading page from webhost"
 
 # Check to see how many lines containing webhost are in loghost's syslog
-lines=$(ssh remoteadmin@loghost grep webhost /var/log/syslog | wc -l)"
+lines=$(ssh remoteadmin@loghost "grep webhost /var/log/syslog | wc -l")
 
 if [ "$lines" -eq "0" ]; then
 	echo "Unable to retrieve webhost logfiles; exiting"
