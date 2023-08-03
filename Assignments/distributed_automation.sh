@@ -6,10 +6,14 @@ if [ "$UID" -ne "0" ]; then
         exit 1
 fi
 
+# Try to authorize to each machine
+ssh -o StrictHostKeyChecking=no remoteadmin@target1-mgmt
+ssh -o StrictHostKeyChecking=no remoteadmin@target2-mgmt
+
 ### MACHINE ONE CONFIG ###
 
 # Check hostname
-target1_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target1-mgmt hostname)
+target1_host=$(ssh remoteadmin@target1-mgmt hostname)
 
 if [ "$?" -ne "0" ]; then
 	echo "Unable to SSH into target host; exiting"
@@ -76,7 +80,7 @@ ssh remoteadmin@target1-mgmt systemctl restart rsyslog
 ### MACHINE TWO CONFIG ###
 
 # Check hostname
-target2_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target2-mgmt hostname)
+target2_host=$(ssh remoteadmin@target2-mgmt hostname)
 
 if [ "$?" -ne "0" ]; then
 	echo "Unable to SSH into target host; exiting"
