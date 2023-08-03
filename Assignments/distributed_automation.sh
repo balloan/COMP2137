@@ -12,17 +12,17 @@ fi
 target1_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target1-mgmt hostname)
 
 if [ "$?" -ne "0" ]; then
-    echo "Unable to SSH into target host; exiting"
-    exit 1
+	echo "Unable to SSH into target host; exiting"
+	exit 1
 fi
 
 # Change hostname if necessary
 if [ "$target1_host" != "loghost" ]; then
 	echo "Changing server name to loghost"
-    ssh remoteadmin@target1-mgmt hostnamectl "set-hostname loghost"
+	ssh remoteadmin@target1-mgmt hostnamectl "set-hostname loghost"
 fi
 
-# Find netplan file to change it
+# Find netplan file name
 target1_netplan=$(ssh remoteadmin@target1-mgmt "find /etc/netplan -type f")
 
 # Exit if multiple netplan files found; unexpected configuration
@@ -58,8 +58,8 @@ ssh remoteadmin@target1-mgmt "echo '192.168.16.4 webhost' >> /etc/hosts"
 
 # UFW Settings
 
-ssh remoteadmin@target1-mgmt "apt-get install ufw -y> /dev/null 2>&1 || echo 'Failed to install UFW; exiting' ; exit 1"
-ssh remoteadmin@target1-mgmt  "ufw allow from 172.16.1.0/24 to any port 514 proto udp >/dev/null|| echo 'Failed to edit UFW; exiting' ; exit 1"
+ssh remoteadmin@target1-mgmt "apt-get install ufw -y > /dev/null 2>&1 || echo 'Failed to install UFW; exiting' ; exit 1"
+ssh remoteadmin@target1-mgmt  "ufw allow from 172.16.1.0/24 to any port 514 proto udp > /dev/null 2>&1 || echo 'Failed to edit UFW; exiting' ; exit 1"
 
 # Config Syslog
 
@@ -70,7 +70,6 @@ sed -i 's/^#module(load=\"imudp\")/module(load=\"imudp\")/' /etc/rsyslog.conf
 sed -i 's/^#\(input(type="imudp" port="514")\)/\1/' /etc/rsyslog.conf
 EOF
 
-
 # Restart the rsyslog service
 ssh remoteadmin@target1-mgmt systemctl restart rsyslog
 
@@ -80,14 +79,14 @@ ssh remoteadmin@target1-mgmt systemctl restart rsyslog
 target2_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target2-mgmt hostname)
 
 if [ "$?" -ne "0" ]; then
-    echo "Unable to SSH into target host; exiting"
-    exit 1
+	echo "Unable to SSH into target host; exiting"
+	exit 1
 fi
 
 # Change hostname if necessary
 if [ "$target2_host" != "webhost" ]; then
 	echo "Changing server name to webhost"
-    ssh remoteadmin@target2-mgmt hostnamectl "set-hostname webhost"
+	ssh remoteadmin@target2-mgmt hostnamectl "set-hostname webhost"
 fi
 
 # Find netplan file to change it
