@@ -13,19 +13,16 @@ fi
 target1_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target1-mgmt hostname)
 exit_on_failure "SSH into target1"
 
-if [ "$?" -ne "0" ]; then
-	echo "Unable to SSH into target host; exiting"
-	exit 1
-fi
-
 # Change hostname if necessary
 if [ "$target1_host" != "loghost" ]; then
 	echo "Changing server name to loghost"
 	ssh remoteadmin@target1-mgmt hostnamectl "set-hostname loghost"
+ 	exit_on_failure "Changing server name"
 fi
 
 # Find netplan file name
 target1_netplan=$(ssh remoteadmin@target1-mgmt "find /etc/netplan -type f")
+exit_on_failure "Finding netplan file"
 
 # Exit if multiple netplan files found; unexpected configuration
 if [ $(echo "$target1_netplan" | wc -l) -gt 1 ]; then
@@ -49,20 +46,22 @@ network:
         eth1:
             addresses: [172.16.1.10/24]
 EOF"
+exit_on_failure "Modifying netplan file"
 
 # Apply netplan changes
-ssh remoteadmin@target1-mgmt "netplan apply > /dev/null 2>&1 || { echo 'Netplan failed to apply; exiting'; exit 1; }"
-
-
+ssh remoteadmin@target1-mgmt "netplan apply > /dev/null 2>&1"
+exit_on_failure "Netplan apply on target1"
 
 #  Add a machine named webhost to the /etc/hosts file with host 4 on the lan
 ssh remoteadmin@target1-mgmt "echo '192.168.16.4 webhost' >> /etc/hosts"
+exit_on_failure "Modifying /etc/hosts on target1"
 
 
 # UFW Settings
-
-ssh remoteadmin@target1-mgmt "apt-get install ufw -y > /dev/null 2>&1 || { echo 'Failed to install UFW; exiting' ; exit 1; }"
-ssh remoteadmin@target1-mgmt  "ufw allow from 172.16.1.0/24 to any port 514 proto udp > /dev/null 2>&1 || { echo 'Failed to edit UFW; exiting' ; exit 1; } "
+ssh remoteadmin@target1-mgmt "apt-get install ufw -y > /dev/null 2>&1"
+exit_on_failure "Installing UFW"
+ssh remoteadmin@target1-mgmt  "ufw allow from 172.16.1.0/24 to any port 514 proto udp > /dev/null 2>&1"
+exit_on_failure "Modifying UFW rules"
 
 # Config Syslog
 
@@ -72,9 +71,11 @@ ssh remoteadmin@target1-mgmt /bin/bash << EOF
 sed -i 's/^#module(load=\"imudp\")/module(load=\"imudp\")/' /etc/rsyslog.conf
 sed -i 's/^#\(input(type="imudp" port="514")\)/\1/' /etc/rsyslog.conf
 EOF
+exit_on_failure "Modifying /etc/rsyslog.conf on target1"
 
 # Restart the rsyslog service
 ssh remoteadmin@target1-mgmt systemctl restart rsyslog
+exit_on_failure "Restarting rsyslog service on target1"
 
 ### MACHINE TWO CONFIG ###
 
