@@ -1,19 +1,9 @@
 #!/bin/bash
 
-# Ensure script has appropriate permissions
-if [ "$UID" -ne "0" ]; then
-        echo "Please re-run script with sudo or root - exiting"
-        exit 1
-fi
-
-# Try to authorize to each machine
-ssh -o StrictHostKeyChecking=no remoteadmin@target1-mgmt
-ssh -o StrictHostKeyChecking=no remoteadmin@target2-mgmt
-
 ### MACHINE ONE CONFIG ###
 
 # Check hostname
-target1_host=$(ssh remoteadmin@target1-mgmt hostname)
+target1_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target1-mgmt hostname)
 
 if [ "$?" -ne "0" ]; then
 	echo "Unable to SSH into target host; exiting"
@@ -80,7 +70,7 @@ ssh remoteadmin@target1-mgmt systemctl restart rsyslog
 ### MACHINE TWO CONFIG ###
 
 # Check hostname
-target2_host=$(ssh remoteadmin@target2-mgmt hostname)
+target2_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target2-mgmt hostname)
 
 if [ "$?" -ne "0" ]; then
 	echo "Unable to SSH into target host; exiting"
@@ -137,8 +127,8 @@ ssh remoteadmin@target2-mgmt 'echo "*.* @loghost" >> /etc/rsyslog.conf || echo "
 ssh remoteadmin@target2-mgmt  'systemctl restart rsyslog'
 
 # Edit host machine /etc/hosts file
-sed -i 's/192\.168\.16\.10 target1/192.168.16.3 loghost/' /etc/hosts
-sed -i 's/192\.168\.16\.11 target2/192.168.16.4 webhost/' /etc/hosts
+sudo sed -i 's/192\.168\.16\.10 target1/192.168.16.3 loghost/' /etc/hosts
+sudo sed -i 's/192\.168\.16\.11 target2/192.168.16.4 webhost/' /etc/hosts
 
 # Search for the default Apache page; verify that site is up
 wget -qO- http://webhost | grep "It works" > /dev/null
