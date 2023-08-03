@@ -1,9 +1,17 @@
 #!/bin/bash
 
+exit_on_failure () {
+if [ $? -ne 0 ]; then
+	echo "$1 failed. Exiting script"
+        exit 1
+fi
+}
+
 ### MACHINE ONE CONFIG ###
 
 # Check hostname
 target1_host=$(ssh -o StrictHostKeyChecking=no remoteadmin@target1-mgmt hostname)
+exit_on_failure "SSH into target1"
 
 if [ "$?" -ne "0" ]; then
 	echo "Unable to SSH into target host; exiting"
