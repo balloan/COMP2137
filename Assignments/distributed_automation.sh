@@ -149,7 +149,7 @@ exit_on_failure "Modifying /etc/rsyslog.conf on target2"
 ssh remoteadmin@target2-mgmt  'systemctl restart rsyslog'
 exit_on_failure "Restarting rsyslog on target2"
 
-echo "Successfully modified Target1's configuration"
+echo "Successfully modified Target2's configuration"
 
 # Edit host machine /etc/hosts file
 sudo sed -i 's/192\.168\.16\.10 target1/192.168.16.3 loghost/' /etc/hosts
