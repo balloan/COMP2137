@@ -58,6 +58,8 @@ exit_on_failure "Modifying /etc/hosts on target1"
 
 
 # UFW Settings
+ssh remoteadmin@target1-mgmt "apt-get update > /dev/null 2>&1"
+exit_on_failure "Updating apt"
 ssh remoteadmin@target1-mgmt "apt-get install ufw -y > /dev/null 2>&1"
 exit_on_failure "Installing UFW"
 ssh remoteadmin@target1-mgmt  "ufw allow from 172.16.1.0/24 to any port 514 proto udp > /dev/null 2>&1"
@@ -128,6 +130,8 @@ ssh remoteadmin@target2-mgmt 'echo "192.168.16.3 loghost" >> /etc/hosts'
 exit_on_failure "Modifying /etc/hosts on target2"
 
 # UFW Settings
+ssh remoteadmin@target2-mgmt "apt-get update > /dev/null 2>&1"
+exit_on_failure "Updating apt"
 ssh remoteadmin@target2-mgmt "apt-get install ufw -y > /dev/null 2>&1"
 exit_on_failure "Installing UFW on target2"
 ssh remoteadmin@target2-mgmt "ufw allow 80/tcp > /dev/null 2>&1"
